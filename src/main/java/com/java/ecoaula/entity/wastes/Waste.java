@@ -1,4 +1,4 @@
-package com.java.ecoaula.entities.wastes;
+package com.java.ecoaula.entity.wastes;
 
 public class Waste{
     private int id;
