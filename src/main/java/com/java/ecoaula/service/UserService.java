@@ -2,7 +2,7 @@ package com.java.ecoaula.service;
 
 import org.springframework.stereotype.Service;
 
-import com.java.ecoaula.entity.wastes.User;
+import com.java.ecoaula.entity.User;
 
 @Service
 public interface UserService {
