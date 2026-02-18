@@ -1,4 +1,4 @@
-package com.java.ecoaula.entity.wastes;
+package com.java.ecoaula.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

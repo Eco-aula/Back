@@ -3,7 +3,7 @@ package com.java.ecoaula.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.java.ecoaula.entity.wastes.User;
+import com.java.ecoaula.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Integer>{
