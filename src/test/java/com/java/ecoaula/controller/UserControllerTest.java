@@ -114,4 +114,20 @@ class UserControllerTest {
 
         verify(userService).deleteUser(9);
     }
+
+    @Test
+    void createUser_withInvalidJson_returns400() throws Exception {
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateUser_withInvalidJson_returns400() throws Exception {
+        mockMvc.perform(put("/api/v1/users/3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{"))
+                .andExpect(status().isBadRequest());
+    }
 }
