@@ -66,7 +66,4 @@ public Waste createWaste(Waste waste) {
         throw new RuntimeException("El residuo no existe");
        });
     }
-
-   
-
 }

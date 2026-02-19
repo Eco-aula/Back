@@ -15,7 +15,7 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
 
-    @Value("${USER_MAIL}")
+    @Value("${spring.mail.username:${USER_MAIL:no-reply@ecoaula.local}}")
     private String fromEmail;
 
     public EmailServiceImpl(JavaMailSender mailSender, UserRepository userRepository) {
@@ -27,14 +27,15 @@ public class EmailServiceImpl implements EmailService {
     public void sendToAllUsers(String subject, String body) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            send(user.getEmail(), body);
+            send(user.getEmail(),subject, body);
         }
     }
 
-    public void send(String to, String body) {
+    public void send(String to, String body, String subject) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("EcoAula <" + fromEmail + ">");
         message.setTo(to);
+        message.setSubject(subject);
         message.setText(body);
         mailSender.send(message);
     }

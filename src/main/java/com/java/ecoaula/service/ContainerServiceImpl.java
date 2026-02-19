@@ -1,8 +1,11 @@
 package com.java.ecoaula.service;
 
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import com.java.ecoaula.dto.ContainerSummaryDTO;
 import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.entity.State;
 import com.java.ecoaula.entity.User;
@@ -63,25 +66,42 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     private void notifyUsers(Container container) {
-        for (User user : userRepo.findAll()) {
 
-            if (container.getState() == State.LIMIT) {
-                emailService.send(
-                    user.getEmail(),
-                    "Contenedor al 70%" +
-                    " ha alcanzado el 70% de su capacidad."
-                );
-            }
+    String containerInfo =
+            "Contenedor ID " + container.getId()
+            + " (" + container.getAllowedCategory() + ")";
 
-            if (container.getState() == State.FULL) {
-                emailService.send(
-                    user.getEmail(),
-                    "URGENTE: Contenedor lleno" +
-                    " ha superado el 90%."
-                );
-            }
+    for (User user : userRepo.findAll()) {
+
+        switch (container.getState()) {
+
+            case LIMIT -> emailService.send(
+                user.getEmail(),
+                containerInfo + " al 70%",
+                containerInfo + " ha alcanzado el 70% de su capacidad."
+            );
+
+            case FULL -> emailService.send(
+                user.getEmail(),
+                containerInfo + " lleno",
+                containerInfo + " ha superado el 90% de su capacidad."
+            );
+
+            case RECYCLING -> emailService.send(
+                user.getEmail(),
+                containerInfo + " en reciclaje",
+                containerInfo + " ha entrado en proceso de reciclaje."
+            );
+
+            case EMPTY -> emailService.send(
+                user.getEmail(),
+                containerInfo + " vacío",
+                containerInfo + " ha sido vaciado y vuelve a estar disponible."
+            );
         }
     }
+}
+
 
 
     @Override
@@ -90,4 +110,54 @@ public class ContainerServiceImpl implements ContainerService {
         .orElseThrow(() -> new ContainerNotFoundException(id));
 }
 
+    @Override
+    public List<ContainerSummaryDTO> getContainersSummary() {
+        return containerRepo.findAll()
+            .stream()
+            .map(container -> new ContainerSummaryDTO(
+                    container.getAllowedCategory(),
+                    container.getState()
+            ))
+            .toList();
+    }
+
+
+    @Override
+public void startRecycling(Integer containerId) {
+    Container container = containerRepo.findById(containerId)
+            .orElseThrow(() -> new ContainerNotFoundException(containerId));
+
+    if (container.getState() != State.FULL) {
+        throw new IllegalStateException(
+            "Solo se puede reciclar un contenedor FULL"
+        );
+    }
+
+    container.setState(State.RECYCLING);
+    containerRepo.save(container);
+
+    notifyUsers(container);
+}
+
+
+@Override
+public void markAsEmpty(Integer containerId) {
+    Container container = containerRepo.findById(containerId)
+            .orElseThrow(() -> new ContainerNotFoundException(containerId));
+
+    if (container.getState() != State.RECYCLING) {
+        throw new IllegalStateException(
+            "Solo se puede marcar como EMPTY un contenedor en RECYCLING"
+        );
+    }
+
+    container.setFillPercentage(0);
+    container.setState(State.EMPTY);
+    containerRepo.save(container);
+
+    notifyUsers(container);
+}
+
+
+    
 }

@@ -6,8 +6,8 @@ import com.java.ecoaula.entity.Waste;
 
 @Service
 public interface WasteService {
-    public Waste createWaste(Waste waste);
-    public Waste updateWaste(Integer id,Waste upWaste);
-    public void deleteWaste(Integer id);
+    Waste createWaste(Waste waste);
+    Waste updateWaste(Integer id, Waste upWaste);
+    void deleteWaste(Integer id);
     
 }

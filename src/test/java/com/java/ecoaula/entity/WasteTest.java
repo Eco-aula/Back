@@ -3,54 +3,59 @@ package com.java.ecoaula.entity;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class WasteTest {
 
     @Test
-    void getters_and_setters_work() {
-        Waste waste = new Waste();
+    void allArgsConstructor_setsFields() {
+        Container container = new Container();
+        LocalDate date = LocalDate.of(2026, 2, 1);
 
-        waste.setId(1);
-        waste.setName("Botella");
-        waste.setDescription("Botella de plástico");
-        waste.setHeavy(0.25f);
+        Waste waste = new Waste(3, "Botella", "Vidrio", 2.5f, Category.GLASS, date, container);
 
-        assertEquals(1, waste.getId());
+        assertEquals(3, waste.getId());
         assertEquals("Botella", waste.getName());
-        assertEquals("Botella de plástico", waste.getDescription());
-        assertEquals(0.25f, waste.getHeavy(), 0.0001f);
+        assertEquals("Vidrio", waste.getDescription());
+        assertEquals(2.5f, waste.getHeavy(), 0.0001f);
+        assertEquals(Category.GLASS, waste.getCategory());
+        assertEquals(date, waste.getDate());
+        assertEquals(container, waste.getContainer());
     }
 
     @Test
-    void equals_and_hashCode_work() {
-        Waste w1 = new Waste();
-        w1.setId(1);
-        w1.setName("Botella");
-        w1.setDescription("Botella de plástico");
-        w1.setHeavy(0.25f);
+    void onCreate_setsDate_whenNull() {
+        Waste w = new Waste();
+        LocalDate before = LocalDate.now();
+        w.onCreate();
+        LocalDate after = LocalDate.now();
 
-        Waste w2 = new Waste();
-        w2.setId(1);
-        w2.setName("Botella");
-        w2.setDescription("Botella de plástico");
-        w2.setHeavy(0.25f);
-
-        assertEquals(w1, w2);
-        assertEquals(w1.hashCode(), w2.hashCode());
+        assertNotNull(w.getDate());
+        assertTrue(!w.getDate().isBefore(before));
+        assertTrue(!w.getDate().isAfter(after));
     }
 
     @Test
-    void onCreate_sets_date_when_null() {
-        Waste waste = new Waste();
+    void onCreate_whenContainerPresent_setsCategoryFromContainer_andUpdatesContainerFill() {
+        Container c = new Container();
+        c.setAllowedCategory(Category.PLASTIC);
+        ArrayList<Waste> wastes = new ArrayList<>();
+        c.setWastes(wastes);
+        c.setFillPercentage(0f);
+        c.setState(State.EMPTY);
 
-        assertNull(waste.getDate());
+        Waste w = new Waste();
+        w.setHeavy(40f);
+        w.setContainer(c);
+        wastes.add(w);
 
-        LocalDate today = LocalDate.now();
-        waste.onCreate();
+        w.onCreate();
 
-        assertNotNull(waste.getDate());
-        assertEquals(today, waste.getDate());
+        assertNotNull(w.getDate());
+        assertEquals(Category.PLASTIC, w.getCategory());
+        assertEquals(40f, c.getFillPercentage(), 0.0001f);
+        assertEquals(State.EMPTY, c.getState());
     }
 }

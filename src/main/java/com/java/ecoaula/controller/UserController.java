@@ -26,7 +26,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/reate/{id}")
+    @GetMapping("/create/{id}")
     public String createUser(@PathVariable Integer id, Model model) {
         model.addAttribute("user", id);
         return "createUser";
