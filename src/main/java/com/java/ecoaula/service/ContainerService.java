@@ -14,4 +14,8 @@ public interface ContainerService {
    public Container getById(Integer id);
 
    public List<ContainerSummaryDTO> getContainersSummary();
+
+   public void startRecycling(Integer containerId);
+
+   public void markAsEmpty(Integer containerId);
 }

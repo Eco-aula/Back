@@ -51,4 +51,18 @@ public class ContainerController {
         return ResponseEntity.ok(containers);
     }
     
+
+    @PatchMapping("/{id}/recycling")
+    public ResponseEntity<Void> startRecycling(@PathVariable Integer id) {
+    containerService.startRecycling(id);
+    return ResponseEntity.noContent().build();
+}
+
+    @PatchMapping("/{id}/empty")
+    public ResponseEntity<Void> markAsEmpty(@PathVariable Integer id) {
+    containerService.markAsEmpty(id);
+    return ResponseEntity.noContent().build();
+}
+
+
 }
