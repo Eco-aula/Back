@@ -45,7 +45,7 @@ class EmailServiceImplTest {
 
     @Test
     void send_sendsSimpleMailMessage() {
-        emailService.send("ana@test.com", "mensaje");
+        emailService.send("ana@test.com", "asunto", "mensaje");
 
         ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender, times(1)).send(captor.capture());
@@ -55,6 +55,7 @@ class EmailServiceImplTest {
         SimpleMailMessage sent = captor.getValue();
         assertEquals("EcoAula <no-reply@ecoaula.test>", sent.getFrom());
         assertArrayEquals(new String[]{"ana@test.com"}, sent.getTo());
+        assertEquals("asunto", sent.getSubject());
         assertEquals("mensaje", sent.getText());
     }
 

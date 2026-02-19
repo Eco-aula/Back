@@ -31,7 +31,8 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    public void send(String to, String body, String subject) {
+    @Override
+    public void send(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("EcoAula <" + fromEmail + ">");
         message.setTo(to);

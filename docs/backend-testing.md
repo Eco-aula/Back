@@ -1,270 +1,231 @@
-🧪 DOCUMENTACIÓN TÉCNICA – PRUEBAS BACKEND
-🚀 Estado Actualizado
-🧭 1) Ramas de trabajo
+# Documentacion tecnica de pruebas backend
 
-Durante la implementación del sistema de testing del backend se trabajó en dos ramas diferenciadas para aislar cambios y garantizar estabilidad.
+## Estado actual
 
-🔹 test/backend
+El backend tiene pruebas unitarias, de controlador, de integracion y
+verificacion de cobertura automatica.
 
-Rama dedicada a la construcción inicial del sistema de pruebas:
+## 1. Ramas de trabajo
 
-✔ Tests unitarios de servicios
+Durante la implementacion del sistema de testing se usaron dos ramas para
+aislar cambios y mantener estabilidad.
 
-✔ Tests de controller con @WebMvcTest
+### `test/backend`
 
-✔ Primeras pruebas de integración
+Rama de construccion inicial del sistema de pruebas.
 
-✔ Integración inicial de JaCoCo
+- Tests unitarios de servicios.
+- Tests de controller con `@WebMvcTest`.
+- Primeras pruebas de integracion.
+- Integracion inicial de JaCoCo.
 
-Permitió construir la base de testing sin afectar la estabilidad de dev.
+### `fix/tests-backend-h2`
 
-🔹 fix/tests-backend-h2
-
-Rama de estabilización y mejora del entorno de testing.
+Rama de estabilizacion del entorno de pruebas.
 
 Objetivos principales:
 
-🔧 Eliminar dependencia de PostgreSQL en tests
+- Eliminar dependencia de PostgreSQL en tests.
+- Integrar H2 en memoria.
+- Configurar correctamente el perfil `test`.
+- Resolver fallos de `@SpringBootTest`.
+- Aumentar cobertura.
+- Garantizar JaCoCo >= 75%.
 
-🧠 Integrar H2 en memoria
+Una vez validado el flujo completo, los cambios se integraron en `dev`.
 
-⚙ Configurar correctamente el perfil test
-
-🛠 Resolver fallos de @SpringBootTest
-
-📈 Aumentar cobertura al máximo posible
-
-✅ Garantizar cumplimiento de JaCoCo ≥ 75%
-
-Una vez validado que el comando:
-
+```bash
 ./mvnw clean verify
+```
 
-
-ejecutaba correctamente y la cobertura era satisfactoria, los cambios fueron integrados en dev.
-
-🚨 2) Problema inicial detectado
+## 2. Problema inicial detectado
 
 Al ejecutar:
 
+```bash
 ./mvnw test
+```
 
+el test `@SpringBootTest` intentaba:
 
-El test @SpringBootTest intentaba:
-
-Levantar el contexto completo.
-
-Conectarse a PostgreSQL.
-
-Leer variables de entorno (DB_HOST, DB_NAME, etc.).
-
-❌ Problema
+- Levantar el contexto completo.
+- Conectarse a PostgreSQL.
+- Leer variables de entorno (`DB_HOST`, `DB_NAME`, etc.).
 
 El entorno fallaba cuando:
 
-No existía PostgreSQL configurado.
+- No existia PostgreSQL configurado.
+- No estaban definidas variables de entorno.
+- Se ejecutaba en CI sin base de datos real.
 
-No estaban definidas variables de entorno.
+Error tipico:
 
-Se ejecutaba en equipos externos o CI sin base de datos real.
-
-🔎 Error típico
+```text
 Cannot load driver class: org.h2.Driver
+```
 
+## 3. Solucion aplicada: entorno reproducible
 
-o errores de conexión a PostgreSQL.
+Se desacoplo el entorno de tests de PostgreSQL usando H2 en memoria y
+perfil dedicado.
 
-🧩 3) Solución aplicada – Entorno reproducible
+Archivo de configuracion:
 
-Se implementa un entorno totalmente desacoplado de PostgreSQL.
-
-🗄 Base de datos
-
-H2 en memoria exclusiva para tests.
-
-Configuración aislada mediante perfil test.
-
-📂 Perfil de test
-
-Archivo:
-
+```text
 src/test/resources/application-test.properties
+```
 
+Configuracion clave:
 
-Configuración clave:
-
+```properties
 spring.datasource.url=jdbc:h2:mem:ecoaula_test
 spring.jpa.hibernate.ddl-auto=create-drop
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 spring.test.database.replace=ANY
+```
 
-📦 Dependencia añadida en pom.xml
+Dependencia en `pom.xml`:
+
+```xml
 <dependency>
   <groupId>com.h2database</groupId>
   <artifactId>h2</artifactId>
   <scope>test</scope>
 </dependency>
+```
 
-🎯 Resultado
+Resultado:
 
-Los tests se ejecutan en cualquier máquina sin dependencia externa.
+- Los tests corren en cualquier maquina.
+- No dependen de servicios externos.
 
-📊 4) Integración de JaCoCo
+## 4. Integracion de JaCoCo
 
-Se integra JaCoCo con:
+JaCoCo se integra con los objetivos:
 
-prepare-agent
+- `prepare-agent`
+- `report`
+- `check` (umbral minimo 75%)
 
-report
+Comandos relevantes:
 
-check (umbral mínimo 75%)
-
-🔧 Comandos relevantes
+```bash
 ./mvnw clean test
 ./mvnw clean test jacoco:report
 ./mvnw clean verify
+```
 
-📈 Reporte generado en
+Reporte generado en:
+
+```text
 target/site/jacoco/index.html
+```
 
-🧪 5) Pruebas unitarias – Capa Service
-🛠 Tecnologías
+## 5. Pruebas unitarias (service)
 
-JUnit 5
+Tecnologias:
 
-Mockito
+- JUnit 5
+- Mockito
+- `@ExtendWith(MockitoExtension.class)`
 
-@ExtendWith(MockitoExtension.class)
+Clases cubiertas:
 
-📚 Clases cubiertas
+- `UserServiceImpl`
+- `ContainerServiceImpl`
+- `WasteServiceImpl`
+- `EmailServiceImpl`
 
-UserServiceImpl
+Estrategia:
 
-ContainerServiceImpl
+- Casos positivos y negativos.
+- Validacion de excepciones.
+- Verificacion de interacciones con repositorios.
+- Verificacion de envios de email.
+- Cobertura de ramas.
 
-WasteServiceImpl
+## 6. Pruebas de controller (slice MVC)
 
-EmailServiceImpl (si aplica)
+Tecnologia:
 
-🧠 Estrategia
+- `@WebMvcTest`
+- `MockMvc`
+- Servicios simulados con `@MockBean`.
 
-Casos positivos
+Caracteristicas:
 
-Casos negativos
+- Sin levantar contexto completo.
+- Sin base de datos real.
+- Sin repositorios reales.
 
-Validación de excepciones
+Endpoints cubiertos:
 
-Verificación de interacciones con repositorios
+- `Users`
+- `Containers`
+- `Wastes`
 
-Verificación de envíos de email
+Codigos verificados:
 
-Cobertura de ramas (branch coverage)
+- `200 OK`
+- `201 CREATED`
+- `204 NO_CONTENT`
+- `400 BAD_REQUEST`
+- `404 NOT_FOUND`
 
-🌐 6) Pruebas de Controller – Slice MVC
-🛠 Tecnología
+## 7. Pruebas de integracion (contexto completo)
 
-@WebMvcTest
+Clase principal:
 
-MockMvc
+- `EcoaulaApplicationTests`
 
-@MockBean de servicios
+Configuracion:
 
-🔍 Características
+- `@SpringBootTest`
+- `@ActiveProfiles("test")`
 
-Sin levantar contexto completo
+Validaciones:
 
-Sin base de datos real
+- Levantamiento real del contexto.
+- Configuracion correcta de H2.
+- Integracion completa sin mocks.
 
-Sin repositorios reales
-
-📌 Endpoints cubiertos
-
-Users
-
-Containers
-
-Wastes
-
-Casos cubiertos:
-
-200 OK
-
-201 CREATED
-
-204 NO_CONTENT
-
-400 BAD_REQUEST
-
-404 NOT_FOUND
-
-🧠 7) Pruebas de integración – Contexto completo
-
-Clase:
-
-EcoaulaApplicationTests
-
-
-Configuración:
-
-@SpringBootTest
-
-@ActiveProfiles("test")
-
-Verifica:
-
-✔ Levantamiento real del contexto
-
-✔ Configuración correcta de H2
-
-✔ Integración completa sin mocks
-
-🔁 8) Pruebas End-to-End Backend
+## 8. Pruebas End-to-End backend
 
 Clases tipo:
 
-UserControllerIT
+- `UserControllerIT`
+- `ContainerControllerIT`
+- `WasteControllerIT`
 
-ContainerControllerIT
+Estrategia:
 
-WasteControllerIT
+- `@SpringBootTest`
+- `@AutoConfigureMockMvc`
+- Perfil `test`
+- H2 en memoria
 
-⚙ Estrategia
+Flujos reales:
 
-@SpringBootTest
+- `POST -> GET`
+- `PUT -> GET`
+- `DELETE -> verificacion posterior`
 
-@AutoConfigureMockMvc
+Ejecucion sin mocks y con repositorios reales.
 
-Perfil test
+## 9. Cobertura actual
 
-Base de datos H2 real en memoria
+Validacion:
 
-🔄 Flujos reales
-
-POST → GET
-
-PUT → GET
-
-DELETE → verificación posterior
-
-Sin mocks.
-Con repositorios reales.
-
-📈 9) Cobertura actual
-
-Validación:
-
+```bash
 ./mvnw clean verify
+```
 
-🎯 Resultado
+Resultado actual:
 
-Instrucciones: 100%
+- Instrucciones: `100%`
+- Branches: `100%`
+- Metodos: `100%`
+- Clases: `100%`
+- Cobertura total: `100%`
 
-Branches: 100%
-
-Métodos: 100%
-
-Clases: 100%
-
-Total: 100% cobertura real del backend.
-
-Esto garantiza que cualquier modificación futura que rompa comportamiento existente provocará fallo inmediato en los tests.
+Esto permite detectar regresiones de comportamiento de forma inmediata.

@@ -88,7 +88,7 @@ class ContainerServiceImplTest {
         verify(containerRepo, times(1)).findById(1);
         verify(containerRepo, times(1)).save(container);
         verify(userRepo, times(1)).findAll();
-        verify(emailService, times(2)).send(anyString(), contains("70%"));
+        verify(emailService, times(2)).send(anyString(), contains("70%"), anyString());
         verifyNoMoreInteractions(containerRepo, userRepo, emailService);
     }
 
@@ -114,7 +114,7 @@ class ContainerServiceImplTest {
         verify(containerRepo, times(1)).findById(1);
         verify(containerRepo, times(1)).save(container);
         verify(userRepo, times(1)).findAll();
-        verify(emailService, times(2)).send(anyString(), contains("URGENTE"));
+        verify(emailService, times(2)).send(anyString(), contains("lleno"), anyString());
         verifyNoMoreInteractions(containerRepo, userRepo, emailService);
     }
 

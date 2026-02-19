@@ -103,7 +103,7 @@ class UserControllerWebMvcTest {
 
     @Test
     void get_createUserPath_returnsTemplateName() throws Exception {
-        mvc.perform(get("/api/v1/users/reate/99"))
+        mvc.perform(get("/api/v1/users/create/99"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("createUser"));
 
