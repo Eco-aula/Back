@@ -1,5 +1,5 @@
 package com.java.ecoaula.entity;
 
 public enum Category {
-    PLASTIC, GLAS, CARDBOARD, ORGANIC, PAPER, METAL;
+    PLASTIC, GLASS, CARDBOARD, ORGANIC, PAPER, METAL;
 }

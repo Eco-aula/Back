@@ -1,33 +1,50 @@
 package com.java.ecoaula.service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
-//import com.java.ecoaula.dto.VolumeByCategoryDTO;
-import com.java.ecoaula.entity.Category;
-import com.java.ecoaula.entity.State;
+import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.entity.Waste;
+import com.java.ecoaula.repository.ContainerRepository;
 import com.java.ecoaula.repository.WasteRepository;
 
 @Service
 public class WasteServiceImpl implements WasteService{
     private final WasteRepository wasteRepository;
+    private final ContainerRepository containerRepository;
 
 
-    public WasteServiceImpl(WasteRepository wasteRepository){
+    public WasteServiceImpl(WasteRepository wasteRepository,ContainerRepository containerRepository){
         this.wasteRepository=wasteRepository;
+        this.containerRepository=containerRepository;
     }
 
-    @Override
-    public Waste createWaste(Waste waste) {
-        if(waste==null){
-            throw new IllegalArgumentException("El residuo no puede estar vacío");
-        }
-        waste.setState(State.EMPTY);
-        return wasteRepository.save(waste);
+  @Override
+public Waste createWaste(Waste waste) {
+    if (waste == null) {
+        throw new IllegalArgumentException("El residuo no puede estar vacío");
     }
+
+    Container container = containerRepository.findByAllowedCategory(waste.getCategory())
+            .orElseGet(() -> {
+                Container newContainer = new Container();
+                newContainer.setAllowedCategory(waste.getCategory());
+                newContainer.setFillPercentage(0.0f);
+                newContainer.setWastes(new ArrayList<>());
+                
+                return containerRepository.save(newContainer);
+            });
+
+            waste.setContainer(container);
+            container.getWastes().add(waste);
+            container.updateFillPercentage();
+
+            return wasteRepository.save(waste);
+}
+
+
+
 
     @Override
     public Waste updateWaste(Integer id, Waste upWaste) {
@@ -50,13 +67,13 @@ public class WasteServiceImpl implements WasteService{
        });
     }
 
-    @Override
+    /*@Override
 public List<String> getAllWaste() {
     return wasteRepository.findAll()
         .stream()
         .map(w -> "Residuo: " + w.getName() + " - Estado: " + w.getState())
         .toList();
-}
+}*/
 
 
     /*@Override
@@ -66,11 +83,11 @@ public List<String> getAllWaste() {
     }*/
 
 
-         @Override
+         /*@Override
         public Double getTotalVolumeByCategory(Category category) {
         return Optional.ofNullable(
         wasteRepository.getTotalVolumeByCategory(category)
         ).orElse(0.0);
-    }
+    }*/
 
 }
