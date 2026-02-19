@@ -6,7 +6,7 @@ import com.java.ecoaula.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,7 +31,7 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
     @Test
@@ -50,8 +50,8 @@ class UserControllerTest {
         when(userService.createUser(any(User.class))).thenReturn(saved);
 
         mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("David"))
@@ -95,8 +95,8 @@ class UserControllerTest {
         when(userService.updateUser(eq(3), any(User.class))).thenReturn(updated);
 
         mockMvc.perform(put("/api/v1/users/3")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(input)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(3))
                 .andExpect(jsonPath("$.name").value("Nuevo"))
@@ -118,16 +118,16 @@ class UserControllerTest {
     @Test
     void createUser_withInvalidJson_returns400() throws Exception {
         mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void updateUser_withInvalidJson_returns400() throws Exception {
         mockMvc.perform(put("/api/v1/users/3")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{"))
                 .andExpect(status().isBadRequest());
     }
 }
