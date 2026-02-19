@@ -83,7 +83,7 @@ public class Container {
     if (wastes == null || wastes.isEmpty()) {
         this.fillPercentage = 0;
     } else {
-        float totalWeight = wastes.stream().map(Waste::getHeavy).reduce(0f, Float::sum);
+        float totalWeight = (float) wastes.stream().mapToDouble(Waste::getHeavy).sum();
         float maxCapacity = 100f;
         this.fillPercentage = totalWeight / maxCapacity * 100;
     }

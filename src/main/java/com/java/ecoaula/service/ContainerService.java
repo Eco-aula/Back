@@ -7,15 +7,15 @@ import com.java.ecoaula.entity.Container;
 
 public interface ContainerService {
 
-   public void updateFillPercentage(Integer containerId, float percentage);
+   public void updateFillPercentage(int containerId, float percentage);
 
-   public void setRecycling(Integer containerId);
+   public void setRecycling(int containerId);
 
-   public Container getById(Integer id);
+   public Container getById(int id);
 
    public List<ContainerSummaryDTO> getContainersSummary();
 
-   public void startRecycling(Integer containerId);
+   public void startRecycling(int containerId);
 
-   public void markAsEmpty(Integer containerId);
+   public void markAsEmpty(int containerId);
 }
