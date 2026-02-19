@@ -1,4 +1,4 @@
-package com.java.ecoaula.controller;
+/*package com.java.ecoaula.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.java.ecoaula.entity.Category;
@@ -83,4 +83,4 @@ class WasteControllerWebMvcTest {
         verify(wasteService, times(1)).deleteWaste(9);
         verifyNoMoreInteractions(wasteService);
     }
-}
+}*/

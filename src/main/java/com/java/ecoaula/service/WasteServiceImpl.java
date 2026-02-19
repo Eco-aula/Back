@@ -9,7 +9,10 @@ import com.java.ecoaula.entity.Waste;
 import com.java.ecoaula.repository.ContainerRepository;
 import com.java.ecoaula.repository.WasteRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class WasteServiceImpl implements WasteService{
     private final WasteRepository wasteRepository;
     private final ContainerRepository containerRepository;
