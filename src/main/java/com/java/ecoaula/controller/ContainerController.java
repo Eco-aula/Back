@@ -14,6 +14,7 @@ import com.java.ecoaula.service.ContainerService;
 
 @RestController
 @RequestMapping("/api/v1/containers")
+@CrossOrigin("http://localhost:5173")
 public class ContainerController {
 
     private final ContainerService containerService;
