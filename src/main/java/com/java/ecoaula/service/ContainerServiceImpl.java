@@ -123,7 +123,7 @@ public class ContainerServiceImpl implements ContainerService {
 
 
     @Override
-public void startRecycling(Integer containerId) {
+public void startRecycling(int containerId) {
     Container container = containerRepo.findById(containerId)
             .orElseThrow(() -> new ContainerNotFoundException(containerId));
 
@@ -141,7 +141,7 @@ public void startRecycling(Integer containerId) {
 
 
 @Override
-public void markAsEmpty(Integer containerId) {
+public void markAsEmpty(int containerId) {
     Container container = containerRepo.findById(containerId)
             .orElseThrow(() -> new ContainerNotFoundException(containerId));
 

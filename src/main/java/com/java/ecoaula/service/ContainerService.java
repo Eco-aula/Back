@@ -15,7 +15,7 @@ public interface ContainerService {
 
    public List<ContainerSummaryDTO> getContainersSummary();
 
-   public void startRecycling(Integer containerId);
+   public void startRecycling(int containerId);
 
-   public void markAsEmpty(Integer containerId);
+   public void markAsEmpty(int containerId);
 }
