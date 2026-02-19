@@ -32,7 +32,7 @@ public class Waste{
     @Enumerated(EnumType.STRING)
     private Category category;
     @Enumerated(EnumType.STRING)
-    private State state;
+    private State state; //--> ponerlo en la clase container
     @Column(nullable = false, updatable = false)
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate date;
