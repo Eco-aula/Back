@@ -1,4 +1,4 @@
-/*package com.java.ecoaula.service;
+package com.java.ecoaula.service;
 
 import com.java.ecoaula.entity.Category;
 import com.java.ecoaula.entity.Container;
@@ -189,4 +189,4 @@ class WasteServiceImplTest {
         verifyNoMoreInteractions(wasteRepository);
         verifyNoInteractions(containerRepository);
     }
-}*/
+}

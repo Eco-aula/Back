@@ -1,4 +1,4 @@
-/*package com.java.ecoaula.controller;
+package com.java.ecoaula.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.java.ecoaula.entity.User;
@@ -55,4 +55,4 @@ class UserControllerIT {
                 .andExpect(jsonPath("$.name", is("David")))
                 .andExpect(jsonPath("$.email", is("david.it@ecoaula.com")));
     }
-}*/
+}

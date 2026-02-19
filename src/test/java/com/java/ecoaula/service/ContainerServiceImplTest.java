@@ -1,4 +1,4 @@
-/*package com.java.ecoaula.service;
+package com.java.ecoaula.service;
 
 import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.entity.State;
@@ -193,4 +193,4 @@ class ContainerServiceImplTest {
         verifyNoMoreInteractions(containerRepo);
         verifyNoInteractions(emailService, userRepo);
     }
-}*/
+}
