@@ -12,7 +12,7 @@ class CategoryTest {
 
         assertTrue(values.length >= 6);
         assertEquals(Category.PLASTIC, values[0]);
-        assertEquals(Category.GLAS, values[1]);
+        assertEquals(Category.GLASS, values[1]);
         assertEquals(Category.CARDBOARD, values[2]);
         assertEquals(Category.ORGANIC, values[3]);
         assertEquals(Category.PAPER, values[4]);
