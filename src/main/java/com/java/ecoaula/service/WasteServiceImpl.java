@@ -67,27 +67,6 @@ public Waste createWaste(Waste waste) {
        });
     }
 
-    /*@Override
-public List<String> getAllWaste() {
-    return wasteRepository.findAll()
-        .stream()
-        .map(w -> "Residuo: " + w.getName() + " - Estado: " + w.getState())
-        .toList();
-}*/
-
-
-    /*@Override
-    public List<VolumeByCategoryDTO> getTotalVolumeByCategory() {
-         return wasteRepository.getTotalVolumeByCategory();
-        
-    }*/
-
-
-         /*@Override
-        public Double getTotalVolumeByCategory(Category category) {
-        return Optional.ofNullable(
-        wasteRepository.getTotalVolumeByCategory(category)
-        ).orElse(0.0);
-    }*/
+   
 
 }
