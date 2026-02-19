@@ -1,8 +1,11 @@
 package com.java.ecoaula.service;
 
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import com.java.ecoaula.dto.ContainerSummaryDTO;
 import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.entity.State;
 import com.java.ecoaula.entity.User;
@@ -89,5 +92,17 @@ public class ContainerServiceImpl implements ContainerService {
         return containerRepo.findById(id)
         .orElseThrow(() -> new ContainerNotFoundException(id));
 }
+
+    @Override
+    public List<ContainerSummaryDTO> getContainersSummary() {
+        return containerRepo.findAll()
+            .stream()
+            .map(container -> new ContainerSummaryDTO(
+                    container.getAllowedCategory(),
+                    container.getState()
+            ))
+            .toList();
+    }
+
 
 }

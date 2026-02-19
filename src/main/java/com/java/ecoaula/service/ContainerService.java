@@ -1,5 +1,8 @@
 package com.java.ecoaula.service;
 
+import java.util.List;
+
+import com.java.ecoaula.dto.ContainerSummaryDTO;
 import com.java.ecoaula.entity.Container;
 
 public interface ContainerService {
@@ -9,4 +12,6 @@ public interface ContainerService {
    public void setRecycling(Integer containerId);
 
    public Container getById(Integer id);
+
+   public List<ContainerSummaryDTO> getContainersSummary();
 }

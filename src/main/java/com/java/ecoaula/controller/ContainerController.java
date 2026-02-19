@@ -1,11 +1,16 @@
 package com.java.ecoaula.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.java.ecoaula.dto.ContainerStatusDTO;
+import com.java.ecoaula.dto.ContainerSummaryDTO;
 import com.java.ecoaula.dto.UpdateFillDTO;
 import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.service.ContainerService;
+
 
 @RestController
 @RequestMapping("/api/v1/containers")
@@ -31,4 +36,18 @@ public class ContainerController {
             container.getState()
         );
     }
+
+    @GetMapping("/summary")
+    public ResponseEntity<List<ContainerSummaryDTO>> getContainersSummary() {
+
+        List<ContainerSummaryDTO> containers =
+                containerService.getContainersSummary();
+
+        if (containers.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(containers);
+    }
+    
 }
