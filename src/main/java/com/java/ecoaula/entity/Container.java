@@ -11,15 +11,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "containers")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Container {
 
     @Id
@@ -38,7 +32,52 @@ public class Container {
    @OneToMany(mappedBy = "container", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Waste> wastes;
 
+    public Container() {
+    }
 
+    public Container(Integer id, State state, float fillPercentage, Category allowedCategory, List<Waste> wastes) {
+        this.id = id;
+        this.state = state;
+        this.fillPercentage = fillPercentage;
+        this.allowedCategory = allowedCategory;
+        this.wastes = wastes;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public float getFillPercentage() {
+        return fillPercentage;
+    }
+
+    public void setFillPercentage(float fillPercentage) {
+        this.fillPercentage = fillPercentage;
+    }
+
+    public void setAllowedCategory(Category allowedCategory) {
+        this.allowedCategory = allowedCategory;
+    }
+
+    public List<Waste> getWastes() {
+        return wastes;
+    }
+
+    public void setWastes(List<Waste> wastes) {
+        this.wastes = wastes;
+    }
 
     public void updateFillPercentage() {
     if (wastes == null || wastes.isEmpty()) {
@@ -46,7 +85,7 @@ public class Container {
     } else {
         float totalWeight = wastes.stream().map(Waste::getHeavy).reduce(0f, Float::sum);
         float maxCapacity = 100f;
-        this.fillPercentage = (totalWeight / maxCapacity) * 100;
+        this.fillPercentage = totalWeight / maxCapacity * 100;
     }
     updateState();
 }
