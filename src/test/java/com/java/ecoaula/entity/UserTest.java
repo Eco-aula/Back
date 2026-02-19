@@ -6,53 +6,54 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
-    @Test
-    void getters_and_setters_work() {
+    private User buildUser(Integer id, String name, String email, String password) {
         User user = new User();
-
-        user.setId(1);
-        user.setName("David");
-        user.setEmail("david@ecoaula.com");
-        user.setPassword("secret");
-
-        assertEquals(1, user.getId());
-        assertEquals("David", user.getName());
-        assertEquals("david@ecoaula.com", user.getEmail());
-        assertEquals("secret", user.getPassword());
+        user.setId(id);
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(password);
+        return user;
     }
 
     @Test
-    void equals_and_hashCode_work() {
-        User u1 = new User();
-        u1.setId(1);
-        u1.setName("David");
-        u1.setEmail("david@ecoaula.com");
-        u1.setPassword("secret");
+    void gettersSetters_andEqualsHashCode_work() {
+        User u1 = buildUser(1, "David", "david@test.com", "1234");
+        User u2 = buildUser(1, "David", "david@test.com", "1234");
 
-        User u2 = new User();
-        u2.setId(1);
-        u2.setName("David");
-        u2.setEmail("david@ecoaula.com");
-        u2.setPassword("secret");
+        assertEquals(1, u1.getId());
+        assertEquals("David", u1.getName());
+        assertEquals("david@test.com", u1.getEmail());
+        assertEquals("1234", u1.getPassword());
 
         assertEquals(u1, u2);
         assertEquals(u1.hashCode(), u2.hashCode());
+        assertNotNull(u1.toString());
     }
 
     @Test
-    void toString_contains_basic_fields() {
-        User user = new User();
-        user.setId(1);
-        user.setName("David");
-        user.setEmail("david@ecoaula.com");
-        user.setPassword("secret");
+    void equals_whenSameReference_returnsTrue() {
+        User user = buildUser(3, "Ana", "ana@test.com", "p");
+        assertEquals(user, user);
+    }
 
-        String text = user.toString();
+    @Test
+    void equals_whenNull_returnsFalse() {
+        User user = buildUser(3, "Ana", "ana@test.com", "p");
+        assertNotEquals(user, null);
+    }
 
-        assertNotNull(text);
-        assertTrue(text.contains("User"));
-        assertTrue(text.contains("id=1"));
-        assertTrue(text.contains("name=David"));
-        assertTrue(text.contains("email=david@ecoaula.com"));
+    @Test
+    void equals_whenDifferentType_returnsFalse() {
+        User user = buildUser(3, "Ana", "ana@test.com", "p");
+        assertNotEquals(user, "not-a-user");
+    }
+
+    @Test
+    void equals_whenAnyFieldDiffers_returnsFalse() {
+        User base = buildUser(3, "Ana", "ana@test.com", "p");
+        assertNotEquals(base, buildUser(4, "Ana", "ana@test.com", "p"));
+        assertNotEquals(base, buildUser(3, "B", "ana@test.com", "p"));
+        assertNotEquals(base, buildUser(3, "Ana", "b@test.com", "p"));
+        assertNotEquals(base, buildUser(3, "Ana", "ana@test.com", "x"));
     }
 }

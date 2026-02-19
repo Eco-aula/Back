@@ -4,7 +4,6 @@ import com.java.ecoaula.entity.User;
 import com.java.ecoaula.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -48,6 +47,7 @@ class UserServiceImplTest {
         assertNotNull(result);
         assertEquals("David", result.getName());
         assertEquals("david@test.com", result.getEmail());
+        assertEquals("1234", result.getPassword());
 
         verify(userRepository, times(1)).save(user);
         verifyNoMoreInteractions(userRepository);

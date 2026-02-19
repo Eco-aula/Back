@@ -16,13 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Data;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "wastes")
 public class Waste {
@@ -46,6 +40,75 @@ public class Waste {
     @JoinColumn(name = "container_id")
     @JsonIgnore
     private Container container;
+
+    public Waste() {
+    }
+
+    public Waste(Integer id, String name, String description, float heavy, Category category, LocalDate date, Container container) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.heavy = heavy;
+        this.category = category;
+        this.date = date;
+        this.container = container;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public float getHeavy() {
+        return heavy;
+    }
+
+    public void setHeavy(float heavy) {
+        this.heavy = heavy;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
+    }
 
     @PrePersist
     public void onCreate() {

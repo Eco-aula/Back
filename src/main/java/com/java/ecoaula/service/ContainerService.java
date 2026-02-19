@@ -4,9 +4,9 @@ import com.java.ecoaula.entity.Container;
 
 public interface ContainerService {
 
-   public void updateFillPercentage(Integer containerId, float percentage);
+   void updateFillPercentage(Integer containerId, float percentage);
 
-   public void setRecycling(Integer containerId);
+   void setRecycling(Integer containerId);
 
-   public Container getById(Integer id);
+   Container getById(Integer id);
 }
