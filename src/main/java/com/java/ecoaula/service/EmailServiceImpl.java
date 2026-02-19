@@ -12,6 +12,8 @@ import java.util.List;
 @Service
 public class EmailServiceImpl implements EmailService {
 
+    private static final String DEFAULT_FROM_EMAIL = "no-reply@ecoaula.local";
+
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
 
@@ -34,11 +36,24 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void send(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("EcoAula <" + fromEmail + ">");
+        message.setFrom("EcoAula <" + resolveFromEmail() + ">");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
         mailSender.send(message);
+    }
+
+    private String resolveFromEmail() {
+        if (fromEmail == null) {
+            return DEFAULT_FROM_EMAIL;
+        }
+
+        String candidate = fromEmail.trim();
+        if (candidate.isBlank() || !candidate.contains("@")) {
+            return DEFAULT_FROM_EMAIL;
+        }
+
+        return candidate;
     }
 }
 

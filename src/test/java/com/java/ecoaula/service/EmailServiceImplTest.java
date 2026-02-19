@@ -60,6 +60,21 @@ class EmailServiceImplTest {
     }
 
     @Test
+    void send_whenFromEmailIsInvalid_usesFallbackAddress() {
+        ReflectionTestUtils.setField(emailService, "fromEmail", "test");
+
+        emailService.send("ana@test.com", "asunto", "mensaje");
+
+        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(1)).send(captor.capture());
+        verifyNoInteractions(userRepository);
+        verifyNoMoreInteractions(mailSender);
+
+        SimpleMailMessage sent = captor.getValue();
+        assertEquals("EcoAula <no-reply@ecoaula.local>", sent.getFrom());
+    }
+
+    @Test
     void sendToAllUsers_whenNoUsers_doesNotSend() {
         when(userRepository.findAll()).thenReturn(List.of());
 
