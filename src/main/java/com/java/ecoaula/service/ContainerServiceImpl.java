@@ -26,7 +26,7 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     @Override
-    public void updateFillPercentage(Integer containerId, float percentage) {
+    public void updateFillPercentage(int containerId, float percentage) {
         Container container = containerRepo.findById(containerId)
                 .orElseThrow(() -> new RuntimeException("Container no encontrado"));
 
@@ -44,7 +44,7 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     @Override
-    public void setRecycling(Integer containerId) {
+    public void setRecycling(int containerId) {
         Container container = containerRepo.findById(containerId)
                 .orElseThrow(() -> new RuntimeException("Container no encontrado"));
 
@@ -85,7 +85,7 @@ public class ContainerServiceImpl implements ContainerService {
 
 
     @Override
-    public Container getById(Integer id) {
+    public Container getById(int id) {
         return containerRepo.findById(id)
         .orElseThrow(() -> new ContainerNotFoundException(id));
 }
