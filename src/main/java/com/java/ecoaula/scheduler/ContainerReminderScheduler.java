@@ -30,7 +30,7 @@ public class ContainerReminderScheduler {
             emailService.sendToAllUsers(
                 "Recordatorio: contenedor lleno",
                 "El contenedor de " + container.getAllowedCategory()
-                + " sigue lleno. Por favor, vaciarlo."
+                + " está lleno. Por favor, vaciadlo."
             );
         }
     }
