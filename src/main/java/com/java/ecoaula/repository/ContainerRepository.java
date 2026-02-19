@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.java.ecoaula.dto.CategoryVolumeDTO;
 import com.java.ecoaula.entity.Category;
 import com.java.ecoaula.entity.Container;
+import com.java.ecoaula.entity.State;
 
 @Repository
 public interface ContainerRepository extends JpaRepository<Container,Integer> {
@@ -23,4 +24,5 @@ public interface ContainerRepository extends JpaRepository<Container,Integer> {
 List<CategoryVolumeDTO> getVolumeByCategory();
 
  Optional<Container> findByAllowedCategory(Category category);
+ public List<Container> findByState(State state);
 }
