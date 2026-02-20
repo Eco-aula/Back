@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+target
+docs
+scripts
+*.md
+*.log
+.env
+node_modules
