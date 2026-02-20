@@ -172,4 +172,3 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify-alerts.ps1
 - `mvnw clean verify` en verde.
 - No bajar de `75%` instrucciones (gate actual).
 - Si se toca logica de negocio, incluir prueba nueva que cubra al menos una rama adicional.
-
