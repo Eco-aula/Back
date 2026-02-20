@@ -10,8 +10,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -29,7 +37,7 @@ class UserServiceImplTest {
                 () -> userService.createUser(null)
         );
 
-        assertEquals("El usuario no puede estar vacío", ex.getMessage());
+        assertEquals("El usuario no puede estar vacio", ex.getMessage());
         verifyNoInteractions(userRepository);
     }
 
@@ -157,7 +165,7 @@ class UserServiceImplTest {
                 () -> userService.updateUser(1, null)
         );
 
-        assertEquals("Los campos del usuario no pueden estar vacíos", ex.getMessage());
+        assertEquals("Los campos del usuario no pueden estar vacios", ex.getMessage());
         verifyNoInteractions(userRepository);
     }
 

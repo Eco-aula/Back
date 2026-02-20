@@ -1,5 +1,7 @@
 package com.java.ecoaula.service;
 
+import com.java.ecoaula.dto.CategoryVolumeDTO;
+import com.java.ecoaula.entity.Category;
 import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.entity.State;
 import com.java.ecoaula.entity.User;
@@ -39,7 +41,7 @@ class ContainerServiceImplTest {
         when(containerRepo.findById(1)).thenReturn(Optional.empty());
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> containerService.updateFillPercentage(1, 10f));
-        assertEquals("Container no encontrado", ex.getMessage());
+        assertEquals("Container con id 1 no encontrado", ex.getMessage());
 
         verify(containerRepo, times(1)).findById(1);
         verifyNoMoreInteractions(containerRepo);
@@ -93,6 +95,17 @@ class ContainerServiceImplTest {
     }
 
     @Test
+    void updateFillPercentage_whenOutOfRange_throwsIllegalArgumentException() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> containerService.updateFillPercentage(1, 120f)
+        );
+
+        assertEquals("El porcentaje debe estar entre 0 y 100", ex.getMessage());
+        verifyNoInteractions(containerRepo, emailService, userRepo);
+    }
+
+    @Test
     void updateFillPercentage_whenStateChangesToFull_sendsEmailToAllUsers() {
         Container container = new Container();
         container.setId(1);
@@ -127,7 +140,7 @@ class ContainerServiceImplTest {
         when(containerRepo.findById(1)).thenReturn(Optional.of(container));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> containerService.setRecycling(1));
-        assertEquals("No se puede reciclar si está por debajo del 70%", ex.getMessage());
+        assertEquals("No se puede reciclar si esta por debajo del 70%", ex.getMessage());
 
         verify(containerRepo, times(1)).findById(1);
         verifyNoMoreInteractions(containerRepo);
@@ -157,7 +170,7 @@ class ContainerServiceImplTest {
         when(containerRepo.findById(9)).thenReturn(Optional.empty());
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> containerService.setRecycling(9));
-        assertEquals("Container no encontrado", ex.getMessage());
+        assertEquals("Container con id 9 no encontrado", ex.getMessage());
 
         verify(containerRepo, times(1)).findById(9);
         verifyNoMoreInteractions(containerRepo);
@@ -190,6 +203,22 @@ class ContainerServiceImplTest {
         assertEquals("Container con id 12 no encontrado", ex.getMessage());
 
         verify(containerRepo, times(1)).findById(12);
+        verifyNoMoreInteractions(containerRepo);
+        verifyNoInteractions(emailService, userRepo);
+    }
+
+    @Test
+    void getVolumeByCategory_returnsRepositoryData() {
+        CategoryVolumeDTO dto = new CategoryVolumeDTO(Category.PAPER, 42.0);
+        when(containerRepo.getVolumeByCategory()).thenReturn(List.of(dto));
+
+        List<CategoryVolumeDTO> result = containerService.getVolumeByCategory();
+
+        assertEquals(1, result.size());
+        assertEquals(Category.PAPER, result.getFirst().getCategory());
+        assertEquals(42f, result.getFirst().getTotalWeight(), 0.0001f);
+
+        verify(containerRepo, times(1)).getVolumeByCategory();
         verifyNoMoreInteractions(containerRepo);
         verifyNoInteractions(emailService, userRepo);
     }

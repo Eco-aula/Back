@@ -2,6 +2,7 @@ package com.java.ecoaula.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.java.ecoaula.entity.User;
+import com.java.ecoaula.exception.ResourceNotFoundException;
 import com.java.ecoaula.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,5 +109,20 @@ class UserControllerWebMvcTest {
                 .andExpect(content().string("createUser"));
 
         verifyNoInteractions(userService);
+    }
+
+    @Test
+    void get_userById_whenNotFound_returns404() throws Exception {
+        when(userService.getUserById(77))
+                .thenThrow(new ResourceNotFoundException("Usuario no encontrado"));
+
+        mvc.perform(get("/api/v1/users/77"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Usuario no encontrado"))
+                .andExpect(jsonPath("$.path").value("/api/v1/users/77"));
+
+        verify(userService, times(1)).getUserById(77);
+        verifyNoMoreInteractions(userService);
     }
 }

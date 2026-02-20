@@ -14,8 +14,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class WasteServiceImplTest {
@@ -32,7 +40,7 @@ class WasteServiceImplTest {
     @Test
     void createWaste_whenNull_throwsIllegalArgumentException() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.createWaste(null));
-        assertEquals("El residuo no puede estar vacío", ex.getMessage());
+        assertEquals("El residuo no puede estar vacio", ex.getMessage());
         verifyNoInteractions(wasteRepository, containerRepository);
     }
 
@@ -107,7 +115,7 @@ class WasteServiceImplTest {
     @Test
     void updateWaste_whenBodyNull_throwsIllegalArgumentException() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.updateWaste(1, null));
-        assertEquals("El residuo no puede estar vacío", ex.getMessage());
+        assertEquals("El residuo no puede estar vacio", ex.getMessage());
         verifyNoInteractions(wasteRepository, containerRepository);
     }
 

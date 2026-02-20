@@ -15,6 +15,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "containers")
 public class Container {
+    private static final float LIMIT_THRESHOLD = 70f;
+    private static final float FULL_THRESHOLD = 90f;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -91,9 +93,9 @@ public class Container {
 }
 
 public void updateState() {
-    if (fillPercentage < 50) {
+    if (fillPercentage < LIMIT_THRESHOLD) {
         this.state = State.EMPTY;
-    } else if (fillPercentage < 90) {
+    } else if (fillPercentage <= FULL_THRESHOLD) {
         this.state = State.LIMIT;
     } else {
         this.state = State.FULL;

@@ -1,20 +1,22 @@
 package com.java.ecoaula.service;
 
-
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
+import com.java.ecoaula.dto.CategoryVolumeDTO;
 import com.java.ecoaula.dto.ContainerSummaryDTO;
 import com.java.ecoaula.entity.Container;
 import com.java.ecoaula.entity.State;
 import com.java.ecoaula.entity.User;
+import com.java.ecoaula.exception.ContainerNotFoundException;
 import com.java.ecoaula.repository.ContainerRepository;
 import com.java.ecoaula.repository.UserRepository;
-import com.java.ecoaula.exception.ContainerNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ContainerServiceImpl implements ContainerService {
+
+    private static final float LIMIT_THRESHOLD = 70f;
+    private static final float FULL_THRESHOLD = 90f;
 
     private final ContainerRepository containerRepo;
     private final EmailService emailService;
@@ -30,14 +32,17 @@ public class ContainerServiceImpl implements ContainerService {
 
     @Override
     public void updateFillPercentage(int containerId, float percentage) {
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 100");
+        }
+
         Container container = containerRepo.findById(containerId)
-                .orElseThrow(() -> new RuntimeException("Container no encontrado"));
+                .orElseThrow(() -> new ContainerNotFoundException(containerId));
 
         container.setFillPercentage(percentage);
 
         State oldState = container.getState();
         State newState = calculateState(percentage);
-
         container.setState(newState);
         containerRepo.save(container);
 
@@ -49,10 +54,10 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     public void setRecycling(int containerId) {
         Container container = containerRepo.findById(containerId)
-                .orElseThrow(() -> new RuntimeException("Container no encontrado"));
+                .orElseThrow(() -> new ContainerNotFoundException(containerId));
 
-        if (container.getFillPercentage() < 70) {
-            throw new IllegalStateException("No se puede reciclar si está por debajo del 70%");
+        if (container.getFillPercentage() < LIMIT_THRESHOLD) {
+            throw new IllegalStateException("No se puede reciclar si esta por debajo del 70%");
         }
 
         container.setState(State.RECYCLING);
@@ -60,104 +65,93 @@ public class ContainerServiceImpl implements ContainerService {
     }
 
     private State calculateState(float percentage) {
-        if (percentage > 90) return State.FULL;
-        if (percentage >= 70) return State.LIMIT;
+        if (percentage > FULL_THRESHOLD) {
+            return State.FULL;
+        }
+        if (percentage >= LIMIT_THRESHOLD) {
+            return State.LIMIT;
+        }
         return State.EMPTY;
     }
 
     private void notifyUsers(Container container) {
+        String containerInfo = "Contenedor ID " + container.getId()
+                + " (" + container.getAllowedCategory() + ")";
 
-    String containerInfo =
-            "Contenedor ID " + container.getId()
-            + " (" + container.getAllowedCategory() + ")";
-
-    for (User user : userRepo.findAll()) {
-
-        switch (container.getState()) {
-
-            case LIMIT -> emailService.send(
-                user.getEmail(),
-                containerInfo + " al 70%",
-                containerInfo + " ha alcanzado el 70% de su capacidad."
-            );
-
-            case FULL -> emailService.send(
-                user.getEmail(),
-                containerInfo + " lleno",
-                containerInfo + " ha superado el 90% de su capacidad."
-            );
-
-            case RECYCLING -> emailService.send(
-                user.getEmail(),
-                containerInfo + " en reciclaje",
-                containerInfo + " ha entrado en proceso de reciclaje."
-            );
-
-            case EMPTY -> emailService.send(
-                user.getEmail(),
-                containerInfo + " vacío",
-                containerInfo + " ha sido vaciado y vuelve a estar disponible."
-            );
+        for (User user : userRepo.findAll()) {
+            switch (container.getState()) {
+                case LIMIT -> emailService.send(
+                        user.getEmail(),
+                        containerInfo + " al 70%",
+                        containerInfo + " ha alcanzado el 70% de su capacidad."
+                );
+                case FULL -> emailService.send(
+                        user.getEmail(),
+                        containerInfo + " lleno",
+                        containerInfo + " ha superado el 90% de su capacidad."
+                );
+                case RECYCLING -> emailService.send(
+                        user.getEmail(),
+                        containerInfo + " en reciclaje",
+                        containerInfo + " ha entrado en proceso de reciclaje."
+                );
+                case EMPTY -> emailService.send(
+                        user.getEmail(),
+                        containerInfo + " vacio",
+                        containerInfo + " ha sido vaciado y vuelve a estar disponible."
+                );
+            }
         }
     }
-}
-
-
 
     @Override
     public Container getById(int id) {
         return containerRepo.findById(id)
-        .orElseThrow(() -> new ContainerNotFoundException(id));
-}
+                .orElseThrow(() -> new ContainerNotFoundException(id));
+    }
 
     @Override
     public List<ContainerSummaryDTO> getContainersSummary() {
         return containerRepo.findAll()
-            .stream()
-            .map(container -> new ContainerSummaryDTO(
-                    container.getAllowedCategory(),
-                    container.getState()
-            ))
-            .toList();
+                .stream()
+                .map(container -> new ContainerSummaryDTO(
+                        container.getAllowedCategory(),
+                        container.getState()
+                ))
+                .toList();
     }
-
 
     @Override
-public void startRecycling(int containerId) {
-    Container container = containerRepo.findById(containerId)
-            .orElseThrow(() -> new ContainerNotFoundException(containerId));
-
-    if (container.getState() != State.FULL) {
-        throw new IllegalStateException(
-            "Solo se puede reciclar un contenedor FULL"
-        );
+    public List<CategoryVolumeDTO> getVolumeByCategory() {
+        return containerRepo.getVolumeByCategory();
     }
 
-    container.setState(State.RECYCLING);
-    containerRepo.save(container);
+    @Override
+    public void startRecycling(int containerId) {
+        Container container = containerRepo.findById(containerId)
+                .orElseThrow(() -> new ContainerNotFoundException(containerId));
 
-    notifyUsers(container);
-}
+        if (container.getState() != State.FULL) {
+            throw new IllegalStateException("Solo se puede reciclar un contenedor FULL");
+        }
 
-
-@Override
-public void markAsEmpty(int containerId) {
-    Container container = containerRepo.findById(containerId)
-            .orElseThrow(() -> new ContainerNotFoundException(containerId));
-
-    if (container.getState() != State.RECYCLING) {
-        throw new IllegalStateException(
-            "Solo se puede marcar como EMPTY un contenedor en RECYCLING"
-        );
+        container.setState(State.RECYCLING);
+        containerRepo.save(container);
+        notifyUsers(container);
     }
 
-    container.setFillPercentage(0);
-    container.setState(State.EMPTY);
-    containerRepo.save(container);
+    @Override
+    public void markAsEmpty(int containerId) {
+        Container container = containerRepo.findById(containerId)
+                .orElseThrow(() -> new ContainerNotFoundException(containerId));
 
-    notifyUsers(container);
-}
+        if (container.getState() != State.RECYCLING) {
+            throw new IllegalStateException("Solo se puede marcar como EMPTY un contenedor en RECYCLING");
+        }
 
-
-    
+        container.setFillPercentage(0);
+        container.setState(State.EMPTY);
+        containerRepo.save(container);
+        notifyUsers(container);
+    }
 }

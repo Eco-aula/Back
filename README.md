@@ -99,8 +99,21 @@ Base URL local: `http://localhost:8080`
 | Contenedores | `/api/v1/containers/{id}/fill` | `PUT` | `200` |
 | Contenedores | `/api/v1/containers/{id}/status` | `GET` | `200` |
 | Contenedores | `/api/v1/containers/summary` | `GET` | `200` o `204` |
+| Contenedores | `/api/v1/containers/volume-by-category` | `GET` | `200` o `204` |
 | Contenedores | `/api/v1/containers/{id}/recycling` | `PATCH` | `204` |
 | Contenedores | `/api/v1/containers/{id}/empty` | `PATCH` | `204` |
+
+Formato de error estandar (`4xx/5xx`):
+
+```json
+{
+  "timestamp": "2026-02-20T01:00:00Z",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Usuario no encontrado",
+  "path": "/api/v1/users/77"
+}
+```
 
 ## Arranque local
 
@@ -119,6 +132,7 @@ El proyecto usa placeholders en `src/main/resources/application.properties`:
 - `USER_NAME`
 - `USER_PASSWORD`
 - `USER_MAIL` (opcional, email remitente)
+- `FRONTEND_URL` (opcional, origen permitido para CORS)
 
 Ejemplo rapido (`.env` local, no versionado):
 
@@ -128,6 +142,7 @@ DB_NAME=ecoaula
 USER_NAME=postgres
 USER_PASSWORD=postgres
 USER_MAIL=no-reply@ecoaula.local
+FRONTEND_URL=http://localhost:5173
 ```
 
 Puedes tomar como base:
@@ -172,16 +187,16 @@ Medido el **20-02-2026** con `mvnw clean verify`:
 
 | Metrica JaCoCo | Cobertura |
 | --- | --- |
-| Instrucciones | `87.04%` |
-| Branches | `83.56%` |
-| Lineas | `86.27%` |
-| Complejidad | `86.36%` |
-| Metodos | `89.66%` |
-| Clases | `95.45%` |
+| Instrucciones | `87.53%` |
+| Branches | `83.54%` |
+| Lineas | `87.07%` |
+| Complejidad | `85.88%` |
+| Metodos | `89.15%` |
+| Clases | `96.15%` |
 
 Datos adicionales del mismo run:
 
-- `81` tests ejecutados
+- `90` tests ejecutados
 - `0` fallos
 - Gate de calidad activo en `pom.xml`: `INSTRUCTION >= 75%`
 
