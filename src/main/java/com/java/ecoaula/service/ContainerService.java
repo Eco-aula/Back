@@ -2,6 +2,7 @@ package com.java.ecoaula.service;
 
 import java.util.List;
 
+import com.java.ecoaula.dto.CategoryVolumeDTO;
 import com.java.ecoaula.dto.ContainerSummaryDTO;
 import com.java.ecoaula.entity.Container;
 
@@ -14,6 +15,8 @@ public interface ContainerService {
    public Container getById(int id);
 
    public List<ContainerSummaryDTO> getContainersSummary();
+
+   public List<CategoryVolumeDTO> getVolumeByCategory();
 
    public void startRecycling(int containerId);
 

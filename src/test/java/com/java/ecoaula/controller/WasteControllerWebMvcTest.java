@@ -3,6 +3,7 @@ package com.java.ecoaula.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.java.ecoaula.entity.Category;
 import com.java.ecoaula.entity.Waste;
+import com.java.ecoaula.exception.ResourceNotFoundException;
 import com.java.ecoaula.service.WasteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +82,21 @@ class WasteControllerWebMvcTest {
                 .andExpect(status().isNoContent());
 
         verify(wasteService, times(1)).deleteWaste(9);
+        verifyNoMoreInteractions(wasteService);
+    }
+
+    @Test
+    void delete_wastes_whenNotFound_returns404() throws Exception {
+        doThrow(new ResourceNotFoundException("El residuo no existe"))
+                .when(wasteService).deleteWaste(404);
+
+        mvc.perform(delete("/api/v1/wastes/404"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("El residuo no existe"))
+                .andExpect(jsonPath("$.path").value("/api/v1/wastes/404"));
+
+        verify(wasteService, times(1)).deleteWaste(404);
         verifyNoMoreInteractions(wasteService);
     }
 }

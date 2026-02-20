@@ -74,7 +74,7 @@ class ContainerTest {
     }
 
     @Test
-    void updateFillPercentage_whenTotalWeight90_setsFill90_andStateFull() {
+    void updateFillPercentage_whenTotalWeight90_setsFill90_andStateLimit() {
         Waste w1 = new Waste();
         w1.setHeavy(90f);
 
@@ -83,7 +83,7 @@ class ContainerTest {
         c.updateFillPercentage();
 
         assertEquals(90f, c.getFillPercentage(), 0.0001f);
-        assertEquals(State.FULL, c.getState());
+        assertEquals(State.LIMIT, c.getState());
     }
 
     @Test
@@ -94,19 +94,19 @@ class ContainerTest {
         c.updateState();
         assertEquals(State.EMPTY, c.getState());
 
-        c.setFillPercentage(49.999f);
+        c.setFillPercentage(69.999f);
         c.updateState();
         assertEquals(State.EMPTY, c.getState());
 
-        c.setFillPercentage(50f);
-        c.updateState();
-        assertEquals(State.LIMIT, c.getState());
-
-        c.setFillPercentage(89.999f);
+        c.setFillPercentage(70f);
         c.updateState();
         assertEquals(State.LIMIT, c.getState());
 
         c.setFillPercentage(90f);
+        c.updateState();
+        assertEquals(State.LIMIT, c.getState());
+
+        c.setFillPercentage(90.001f);
         c.updateState();
         assertEquals(State.FULL, c.getState());
     }

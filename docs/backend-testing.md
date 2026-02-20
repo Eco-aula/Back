@@ -13,7 +13,7 @@ mvnw clean verify
 Resultado:
 
 - Build: `SUCCESS`
-- Tests totales: `81`
+- Tests totales: `90`
 - Fallos: `0`
 - Errores: `0`
 - Suites ejecutadas: `20`
@@ -77,12 +77,12 @@ Snapshot del run de **20-02-2026**:
 
 | Metrica | Cobertura |
 | --- | --- |
-| Instrucciones | `87.04%` |
-| Branches | `83.56%` |
-| Lineas | `86.27%` |
-| Complejidad | `86.36%` |
-| Metodos | `89.66%` |
-| Clases | `95.45%` |
+| Instrucciones | `87.53%` |
+| Branches | `83.54%` |
+| Lineas | `87.07%` |
+| Complejidad | `85.88%` |
+| Metodos | `89.15%` |
+| Clases | `96.15%` |
 
 Reporte local:
 
@@ -95,9 +95,10 @@ Segun `target/site/jacoco/jacoco.csv`:
 | Clase | Cobertura instrucciones | Observacion |
 | --- | --- | --- |
 | `ContainerSummaryDTO` | `0.00%` | DTO sin test dedicado |
-| `ContainerController` | `50.85%` | Faltan casos para endpoints PATCH y errores |
-| `ContainerServiceImpl` | `58.97%` | Faltan ramas de negocio y errores |
+| `ContainerController` | `59.72%` | Faltan mas casos para endpoints PATCH y errores de estado |
+| `ContainerServiceImpl` | `61.90%` | Faltan ramas de negocio y errores |
 | `ContainerReminderScheduler` | `61.76%` | Falta test directo del scheduler |
+| `GlobalExceptionHandler` | `70.00%` | Faltan casos para ramas de error 500 y validaciones |
 
 ## Workflows de testing
 
@@ -154,15 +155,15 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify-alerts.ps1
 
 ## Riesgos tecnicos detectados
 
-- Hay dos reglas de umbral para estado de contenedor (50/90 en entidad y 70/90 en servicio). Conviene unificar y cubrir con tests para evitar comportamiento inconsistente.
+- Se unificaron los umbrales de estado de contenedor a `70/90` (entidad y servicio). Conviene mantener este contrato en una unica fuente para evitar regresiones.
 - La capa repository no tiene pruebas activas porque `ContainerRepositoryDataJpaTest` esta comentado.
 
 ## Plan de mejora propuesto (priorizado)
 
-1. Reactivar `ContainerRepositoryDataJpaTest` y añadir casos de agregacion por categoria.
-2. Subir cobertura de `ContainerController` con casos de error (`404`, `400`, estados invalidos).
-3. Añadir tests unitarios directos de `ContainerReminderScheduler` con mocks de repo/email.
-4. Añadir tests para `ContainerSummaryDTO` y ramas faltantes de `ContainerServiceImpl`.
+1. Reactivar `ContainerRepositoryDataJpaTest` y anadir casos de agregacion por categoria.
+2. Subir cobertura de `ContainerController` con mas casos de transiciones PATCH invalidas.
+3. Anadir tests unitarios directos de `ContainerReminderScheduler` con mocks de repo/email.
+4. Anadir tests para `ContainerSummaryDTO` y ramas faltantes de `ContainerServiceImpl`.
 5. Publicar badge dinamico de CI/cobertura cuando el repo este en GitHub.
 
 ## Criterio de calidad recomendado para PR
