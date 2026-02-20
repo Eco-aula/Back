@@ -2,6 +2,8 @@ package com.java.ecoaula.service;
 
 import com.java.ecoaula.entity.User;
 import com.java.ecoaula.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,11 +13,15 @@ import java.util.List;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+    private static final Logger LOG = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private static final String DEFAULT_FROM_EMAIL = "no-reply@ecoaula.local";
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+
+    @Value("${app.mail.enabled:true}")
+    private boolean mailEnabled = true;
 
     @Value("${spring.mail.username:${USER_MAIL:no-reply@ecoaula.local}}")
     private String fromEmail;
@@ -35,12 +41,25 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void send(String to, String subject, String body) {
+        if (!mailEnabled) {
+            return;
+        }
+
+        if (to == null || to.isBlank()) {
+            return;
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("EcoAula <" + resolveFromEmail() + ">");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
-        mailSender.send(message);
+
+        try {
+            mailSender.send(message);
+        } catch (Exception ex) {
+            LOG.warn("No se pudo enviar email a {}", to);
+        }
     }
 
     private String resolveFromEmail() {

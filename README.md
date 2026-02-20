@@ -15,6 +15,7 @@ API REST para gestion de residuos en centros escolares.
 - [Dominio](#dominio)
 - [API principal](#api-principal)
 - [Arranque local](#arranque-local)
+- [Despliegue](#despliegue)
 - [Testing y cobertura](#testing-y-cobertura)
 - [Workflows de testing](#workflows-de-testing)
 - [Estructura del repo](#estructura-del-repo)
@@ -102,6 +103,7 @@ Base URL local: `http://localhost:8080`
 | Contenedores | `/api/v1/containers/volume-by-category` | `GET` | `200` o `204` |
 | Contenedores | `/api/v1/containers/{id}/recycling` | `PATCH` | `204` |
 | Contenedores | `/api/v1/containers/{id}/empty` | `PATCH` | `204` |
+| Health | `/api/v1/health` | `GET` | `200` |
 
 Formato de error estandar (`4xx/5xx`):
 
@@ -125,7 +127,13 @@ Formato de error estandar (`4xx/5xx`):
 
 ### 2. Variables de entorno
 
-El proyecto usa placeholders en `src/main/resources/application.properties`:
+Perfiles disponibles:
+
+- `dev` (default): PostgreSQL local + mail local
+- `prod`: PostgreSQL y SMTP por variables de entorno
+- `demo`: H2 en archivo local para demo rapida
+
+Variables principales:
 
 - `DB_HOST`
 - `DB_NAME`
@@ -133,6 +141,8 @@ El proyecto usa placeholders en `src/main/resources/application.properties`:
 - `USER_PASSWORD`
 - `USER_MAIL` (opcional, email remitente)
 - `FRONTEND_URL` (opcional, origen permitido para CORS)
+- `SPRING_PROFILES_ACTIVE` (`dev`, `prod`, `demo`)
+- `APP_MAIL_ENABLED` (`true` o `false`)
 
 Ejemplo rapido (`.env` local, no versionado):
 
@@ -143,6 +153,8 @@ USER_NAME=postgres
 USER_PASSWORD=postgres
 USER_MAIL=no-reply@ecoaula.local
 FRONTEND_URL=http://localhost:5173
+SPRING_PROFILES_ACTIVE=dev
+APP_MAIL_ENABLED=true
 ```
 
 Puedes tomar como base:
@@ -162,6 +174,26 @@ Linux/macOS:
 ```bash
 ./mvnw spring-boot:run
 ```
+
+## Despliegue
+
+### Produccion (recomendado)
+
+Configura estas variables en la plataforma de despliegue:
+
+- `SPRING_PROFILES_ACTIVE=prod`
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
+- `FRONTEND_URL` (puede ser lista separada por comas)
+- `APP_MAIL_ENABLED` (`false` si no tienes SMTP configurado)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` (si correo activo)
+
+### Endpoint de verificacion publica
+
+Cuando despliegues, usa este endpoint para comprobar que la API esta viva:
+
+- `GET {BACKEND_PUBLIC_URL}/api/v1/health`
 
 ## Testing y cobertura
 
@@ -187,16 +219,16 @@ Medido el **20-02-2026** con `mvnw clean verify`:
 
 | Metrica JaCoCo | Cobertura |
 | --- | --- |
-| Instrucciones | `87.53%` |
-| Branches | `83.54%` |
-| Lineas | `87.07%` |
-| Complejidad | `85.88%` |
-| Metodos | `89.15%` |
-| Clases | `96.15%` |
+| Instrucciones | `87.36%` |
+| Branches | `81.18%` |
+| Lineas | `86.48%` |
+| Complejidad | `84.66%` |
+| Metodos | `89.39%` |
+| Clases | `96.30%` |
 
 Datos adicionales del mismo run:
 
-- `90` tests ejecutados
+- `91` tests ejecutados
 - `0` fallos
 - Gate de calidad activo en `pom.xml`: `INSTRUCTION >= 75%`
 
