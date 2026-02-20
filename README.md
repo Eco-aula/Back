@@ -1,80 +1,257 @@
+# EcoAula Backend
 
-♻️ EcoAula – Gestión y Control de Residuos en Centros Escolares
+API REST para gestion de residuos en centros escolares.
 
-Proyecto desarrollado con fines educativos para Hackathon F5.
+![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.x-6DB33F?logo=springboot&logoColor=white)
+![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
+![JaCoCo](https://img.shields.io/badge/JaCoCo-gate%20%3E%3D%2075%25-blue)
 
-EcoAula es una aplicación web diseñada para mejorar la gestión, clasificación y monitorización de residuos en centros escolares mediante una arquitectura cliente-servidor moderna basada en API REST.
+## Indice
 
-🚀 Objetivo del Proyecto
+- [Resumen](#resumen)
+- [Arquitectura](#arquitectura)
+- [Tecnologias](#tecnologias)
+- [Dominio](#dominio)
+- [API principal](#api-principal)
+- [Arranque local](#arranque-local)
+- [Testing y cobertura](#testing-y-cobertura)
+- [Workflows de testing](#workflows-de-testing)
+- [Estructura del repo](#estructura-del-repo)
+- [Roadmap de calidad](#roadmap-de-calidad)
 
-Desarrollar una plataforma que permita:
+## Resumen
 
-Registrar residuos escolares por categoría.
+EcoAula permite:
 
-Monitorizar el estado de los residuos.
+- Registrar residuos por categoria.
+- Actualizar estado de contenedores por porcentaje de llenado.
+- Consultar estado y resumen de contenedores.
+- Notificar por correo cambios importantes de estado.
+- Ejecutar pruebas backend con H2 en memoria y control de cobertura con JaCoCo.
 
-Visualizar el volumen total por categoría.
+## Arquitectura
 
-Generar alertas relacionadas con la gestión de residuos.
+```mermaid
+flowchart LR
+    FE[Frontend] --> API[Controllers REST]
+    API --> SVC[Services]
+    SVC --> REPO[Repositories JPA]
+    REPO --> DB[(PostgreSQL / H2 tests)]
+    SVC --> MAIL[EmailService]
+    SCH[Scheduler] --> REPO
+    SCH --> MAIL
+```
 
-Aplicar buenas prácticas de desarrollo sostenible y arquitectura limpia.
+## Tecnologias
 
-🧱 Arquitectura
+| Capa | Stack |
+| --- | --- |
+| Lenguaje | Java 21 |
+| Framework | Spring Boot 3.5.x |
+| Persistencia | Spring Data JPA + Hibernate |
+| Base de datos | PostgreSQL (dev/prod), H2 (tests) |
+| Tests | JUnit 5, Mockito, MockMvc |
+| Calidad | JaCoCo (umbral minimo 75% instrucciones) |
 
-El proyecto sigue una arquitectura cliente-servidor con separación clara entre frontend y backend.
+## Dominio
 
-Backend
+Categorias de residuo (`Category`):
 
-Java 21
+- `PLASTIC`
+- `GLASS`
+- `CARDBOARD`
+- `ORGANIC`
+- `PAPER`
+- `METAL`
 
-Spring Boot
+Estados de contenedor (`State`):
 
-Spring Data JPA
+- `EMPTY`
+- `LIMIT`
+- `FULL`
+- `RECYCLING`
 
-Hibernate
+Flujo esperado de estados:
 
-API REST
+```mermaid
+stateDiagram-v2
+    [*] --> EMPTY
+    EMPTY --> LIMIT: aumento de llenado
+    LIMIT --> FULL: umbral alto de llenado
+    FULL --> RECYCLING: PATCH /containers/{id}/recycling
+    RECYCLING --> EMPTY: PATCH /containers/{id}/empty
+```
 
-PostgreSQL
+## API principal
 
-📦 Funcionalidades
-✅ Requisitos esenciales
+Base URL local: `http://localhost:8080`
 
-Registro de residuos por categoría.
+| Recurso | Endpoint | Metodo | Respuesta esperada |
+| --- | --- | --- | --- |
+| Usuarios | `/api/v1/users` | `POST` | `201` |
+| Usuarios | `/api/v1/users/{id}` | `GET` | `200` |
+| Usuarios | `/api/v1/users/{id}` | `PUT` | `200` |
+| Usuarios | `/api/v1/users/{id}` | `DELETE` | `204` |
+| Residuos | `/api/v1/wastes` | `POST` | `201` |
+| Residuos | `/api/v1/wastes/{id}` | `PUT` | `200` |
+| Residuos | `/api/v1/wastes/{id}` | `DELETE` | `204` |
+| Contenedores | `/api/v1/containers/{id}/fill` | `PUT` | `200` |
+| Contenedores | `/api/v1/containers/{id}/status` | `GET` | `200` |
+| Contenedores | `/api/v1/containers/summary` | `GET` | `200` o `204` |
+| Contenedores | `/api/v1/containers/{id}/recycling` | `PATCH` | `204` |
+| Contenedores | `/api/v1/containers/{id}/empty` | `PATCH` | `204` |
 
-Listado de residuos y estado.
+## Arranque local
 
-Visualización del volumen total por categoría.
+### 1. Prerrequisitos
 
-Sistema básico de alertas.
+- JDK 21
+- Maven Wrapper (`mvnw` / `mvnw.cmd`)
+- PostgreSQL para ejecucion en perfil `dev`
 
-API REST funcional.
+### 2. Variables de entorno
 
-La API estará disponible en:
+El proyecto usa placeholders en `src/main/resources/application.properties`:
 
-http://localhost:8080
+- `DB_HOST`
+- `DB_NAME`
+- `USER_NAME`
+- `USER_PASSWORD`
+- `USER_MAIL` (opcional, email remitente)
 
-🧼 Buenas prácticas aplicadas
+Ejemplo rapido (`.env` local, no versionado):
 
-Arquitectura modular.
+```dotenv
+DB_HOST=localhost
+DB_NAME=ecoaula
+USER_NAME=postgres
+USER_PASSWORD=postgres
+USER_MAIL=no-reply@ecoaula.local
+```
 
-Arquitectura en capas (Controller → Service → Repository → Entity)
+Puedes tomar como base:
 
-Validación de datos.
+- `.env.example`
 
-Código limpio y mantenible.
+### 3. Ejecutar backend
 
-Uso de enums para estados y categorías.
+Windows:
 
-👥 Equipo
+```bash
+.\mvnw.cmd spring-boot:run
+```
 
-Jennifer Cros, Juan Luis Márquez, David Navarro, María José Ozta, Gabriel Hernández, Gino Junior, Yeremi Jesus Peralta, Juan Carlos Gil.
+Linux/macOS:
 
+```bash
+./mvnw spring-boot:run
+```
 
-🎤 Presentación
+## Testing y cobertura
 
-Demo en vivo.
+### Comandos utiles
 
+Windows:
 
+```bash
+.\mvnw.cmd test
+.\mvnw.cmd clean verify
+```
 
+Linux/macOS:
 
+```bash
+./mvnw test
+./mvnw clean verify
+```
+
+### Snapshot real de cobertura
+
+Medido el **20-02-2026** con `mvnw clean verify`:
+
+| Metrica JaCoCo | Cobertura |
+| --- | --- |
+| Instrucciones | `87.04%` |
+| Branches | `83.56%` |
+| Lineas | `86.27%` |
+| Complejidad | `86.36%` |
+| Metodos | `89.66%` |
+| Clases | `95.45%` |
+
+Datos adicionales del mismo run:
+
+- `81` tests ejecutados
+- `0` fallos
+- Gate de calidad activo en `pom.xml`: `INSTRUCTION >= 75%`
+
+Reporte HTML local:
+
+- `target/site/jacoco/index.html`
+
+Guia detallada de testing:
+
+- `docs/backend-testing.md`
+
+## Workflows de testing
+
+### Flujo local rapido
+
+```mermaid
+flowchart TD
+    A[Crear o modificar test] --> B[Ejecutar mvnw test]
+    B --> C{Tests en verde?}
+    C -- No --> A
+    C -- Si --> D[Ejecutar mvnw clean verify]
+    D --> E[Revisar reporte JaCoCo]
+    E --> F{Cumple gate >= 75%?}
+    F -- No --> A
+    F -- Si --> G[Listo para PR]
+```
+
+### Flujo CI (GitHub Actions)
+
+Archivo: `.github/workflows/backend-tests.yml`
+
+```mermaid
+flowchart LR
+    P[Push o Pull Request] --> J[Job backend-tests]
+    J --> S[Setup JDK 21 + cache Maven]
+    S --> V[Run mvnw clean verify]
+    V --> A1[Upload surefire reports]
+    V --> A2[Upload JaCoCo HTML]
+```
+
+## Estructura del repo
+
+```text
+.
+|-- docs/
+|   `-- backend-testing.md
+|-- scripts/
+|   `-- verify-alerts.ps1
+|-- src/main/java/com/java/ecoaula/
+|   |-- config/
+|   |-- controller/
+|   |-- dto/
+|   |-- entity/
+|   |-- exception/
+|   |-- repository/
+|   |-- scheduler/
+|   `-- service/
+|-- src/test/java/com/java/ecoaula/
+|   |-- controller/
+|   |-- dto/
+|   |-- entity/
+|   |-- exception/
+|   |-- service/
+|   `-- config/
+`-- pom.xml
+```
+
+## Roadmap de calidad
+
+- Rehabilitar tests `@DataJpaTest` hoy comentados para reforzar repositorios.
+- Cubrir rutas faltantes en `ContainerController` y `ContainerServiceImpl`.
+- Testear `ContainerReminderScheduler` con doubles de repositorio/email.
+- Sustituir snapshot manual de cobertura por badge dinamico en CI cuando el repo este en GitHub.

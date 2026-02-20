@@ -1,231 +1,173 @@
-# Documentacion tecnica de pruebas backend
+# Documentacion de testing backend
 
-## Estado actual
+## Estado real (verificado)
 
-El backend tiene pruebas unitarias, de controlador, de integracion y
-verificacion de cobertura automatica.
+Ultima verificacion manual: **20-02-2026**
 
-## 1. Ramas de trabajo
-
-Durante la implementacion del sistema de testing se usaron dos ramas para
-aislar cambios y mantener estabilidad.
-
-### `test/backend`
-
-Rama de construccion inicial del sistema de pruebas.
-
-- Tests unitarios de servicios.
-- Tests de controller con `@WebMvcTest`.
-- Primeras pruebas de integracion.
-- Integracion inicial de JaCoCo.
-
-### `fix/tests-backend-h2`
-
-Rama de estabilizacion del entorno de pruebas.
-
-Objetivos principales:
-
-- Eliminar dependencia de PostgreSQL en tests.
-- Integrar H2 en memoria.
-- Configurar correctamente el perfil `test`.
-- Resolver fallos de `@SpringBootTest`.
-- Aumentar cobertura.
-- Garantizar JaCoCo >= 75%.
-
-Una vez validado el flujo completo, los cambios se integraron en `dev`.
+Comando ejecutado:
 
 ```bash
-./mvnw clean verify
-```
-
-## 2. Problema inicial detectado
-
-Al ejecutar:
-
-```bash
-./mvnw test
-```
-
-el test `@SpringBootTest` intentaba:
-
-- Levantar el contexto completo.
-- Conectarse a PostgreSQL.
-- Leer variables de entorno (`DB_HOST`, `DB_NAME`, etc.).
-
-El entorno fallaba cuando:
-
-- No existia PostgreSQL configurado.
-- No estaban definidas variables de entorno.
-- Se ejecutaba en CI sin base de datos real.
-
-Error tipico:
-
-```text
-Cannot load driver class: org.h2.Driver
-```
-
-## 3. Solucion aplicada: entorno reproducible
-
-Se desacoplo el entorno de tests de PostgreSQL usando H2 en memoria y
-perfil dedicado.
-
-Archivo de configuracion:
-
-```text
-src/test/resources/application-test.properties
-```
-
-Configuracion clave:
-
-```properties
-spring.datasource.url=jdbc:h2:mem:ecoaula_test
-spring.jpa.hibernate.ddl-auto=create-drop
-spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-spring.test.database.replace=ANY
-```
-
-Dependencia en `pom.xml`:
-
-```xml
-<dependency>
-  <groupId>com.h2database</groupId>
-  <artifactId>h2</artifactId>
-  <scope>test</scope>
-</dependency>
+mvnw clean verify
 ```
 
 Resultado:
 
-- Los tests corren en cualquier maquina.
-- No dependen de servicios externos.
+- Build: `SUCCESS`
+- Tests totales: `81`
+- Fallos: `0`
+- Errores: `0`
+- Suites ejecutadas: `20`
+- Gate JaCoCo activo: `INSTRUCTION >= 75%`
 
-## 4. Integracion de JaCoCo
+Este documento reemplaza versiones antiguas que indicaban cobertura `100%`.
 
-JaCoCo se integra con los objetivos:
+## Objetivo de esta guia
 
-- `prepare-agent`
-- `report`
-- `check` (umbral minimo 75%)
+- Explicar como se prueba el backend hoy.
+- Mostrar cobertura real y trazable.
+- Definir workflow local y CI.
+- Priorizar mejoras de cobertura sin inflar metricas.
 
-Comandos relevantes:
+## Estrategia de pruebas
 
-```bash
-./mvnw clean test
-./mvnw clean test jacoco:report
-./mvnw clean verify
-```
+El proyecto usa una estrategia por capas:
 
-Reporte generado en:
+- Unit tests de servicios y dominio.
+- Controller tests con MockMvc (`@WebMvcTest`).
+- Integracion con contexto Spring (`@SpringBootTest`).
+- End-to-end backend (MockMvc + repos reales + perfil `test`).
 
-```text
-target/site/jacoco/index.html
-```
-
-## 5. Pruebas unitarias (service)
-
-Tecnologias:
+## Stack de testing
 
 - JUnit 5
 - Mockito
-- `@ExtendWith(MockitoExtension.class)`
+- Spring Boot Test
+- MockMvc
+- H2 en memoria (perfil `test`)
+- JaCoCo para cobertura y quality gate
 
-Clases cubiertas:
+## Inventario actual de suites
 
-- `UserServiceImpl`
-- `ContainerServiceImpl`
-- `WasteServiceImpl`
-- `EmailServiceImpl`
+| Tipo | Clases principales | Estado |
+| --- | --- | --- |
+| Unit - service | `ContainerServiceImplTest`, `EmailServiceImplTest`, `UserServiceImplTest`, `WasteServiceImplTest` | Activo |
+| Unit - dominio | `CategoryTest`, `ContainerTest`, `StateTest`, `UserTest`, `WasteTest` | Activo |
+| Unit - DTO/config/exception | `CategoryVolumeDTOTest`, `ContainerStatusDTOTest`, `UpdateFillDTOTest`, `WasteStatusDTOTest`, `DotenvConfigTest`, `ContainerNotFoundExceptionTest` | Activo |
+| Controller slice | `ContainerControllerWebMvcTest`, `UserControllerWebMvcTest`, `WasteControllerWebMvcTest` | Activo |
+| Integracion contexto | `EcoaulaApplicationTests`, `UserControllerTest` | Activo |
+| End-to-end backend | `UserControllerIT` | Activo |
+| Repository (`@DataJpaTest`) | `ContainerRepositoryDataJpaTest` | Inactivo (archivo comentado) |
 
-Estrategia:
+## Entorno reproducible de tests
 
-- Casos positivos y negativos.
-- Validacion de excepciones.
-- Verificacion de interacciones con repositorios.
-- Verificacion de envios de email.
-- Cobertura de ramas.
+Archivo clave:
 
-## 6. Pruebas de controller (slice MVC)
+- `src/test/resources/application-test.properties`
 
-Tecnologia:
+Puntos importantes:
 
-- `@WebMvcTest`
-- `MockMvc`
-- Servicios simulados con `@MockBean`.
+- Base de datos H2 en memoria: `jdbc:h2:mem:ecoaula_test`
+- `spring.jpa.hibernate.ddl-auto=create-drop`
+- Perfil de pruebas desacoplado de PostgreSQL
+- Sin dependencia de variables `DB_*` para correr tests
 
-Caracteristicas:
+## Cobertura actual (JaCoCo)
 
-- Sin levantar contexto completo.
-- Sin base de datos real.
-- Sin repositorios reales.
+Snapshot del run de **20-02-2026**:
 
-Endpoints cubiertos:
+| Metrica | Cobertura |
+| --- | --- |
+| Instrucciones | `87.04%` |
+| Branches | `83.56%` |
+| Lineas | `86.27%` |
+| Complejidad | `86.36%` |
+| Metodos | `89.66%` |
+| Clases | `95.45%` |
 
-- `Users`
-- `Containers`
-- `Wastes`
+Reporte local:
 
-Codigos verificados:
+- `target/site/jacoco/index.html`
 
-- `200 OK`
-- `201 CREATED`
-- `204 NO_CONTENT`
-- `400 BAD_REQUEST`
-- `404 NOT_FOUND`
+## Hotspots de cobertura baja
 
-## 7. Pruebas de integracion (contexto completo)
+Segun `target/site/jacoco/jacoco.csv`:
 
-Clase principal:
+| Clase | Cobertura instrucciones | Observacion |
+| --- | --- | --- |
+| `ContainerSummaryDTO` | `0.00%` | DTO sin test dedicado |
+| `ContainerController` | `50.85%` | Faltan casos para endpoints PATCH y errores |
+| `ContainerServiceImpl` | `58.97%` | Faltan ramas de negocio y errores |
+| `ContainerReminderScheduler` | `61.76%` | Falta test directo del scheduler |
 
-- `EcoaulaApplicationTests`
+## Workflows de testing
 
-Configuracion:
+### Workflow local
 
-- `@SpringBootTest`
-- `@ActiveProfiles("test")`
+```mermaid
+flowchart TD
+    A[Escribir o ajustar test] --> B[Ejecutar mvnw test]
+    B --> C{Todo verde?}
+    C -- No --> A
+    C -- Si --> D[Ejecutar mvnw clean verify]
+    D --> E[Revisar JaCoCo HTML]
+    E --> F{Gate >= 75%?}
+    F -- No --> A
+    F -- Si --> G[Preparar PR]
+```
 
-Validaciones:
+### Workflow CI
 
-- Levantamiento real del contexto.
-- Configuracion correcta de H2.
-- Integracion completa sin mocks.
+Archivo:
 
-## 8. Pruebas End-to-End backend
+- `.github/workflows/backend-tests.yml`
 
-Clases tipo:
+```mermaid
+flowchart LR
+    PR[Push o Pull Request] --> CI[GitHub Actions]
+    CI --> JDK[Setup Temurin 21 + cache Maven]
+    JDK --> VERIFY[Run mvnw clean verify]
+    VERIFY --> ART1[Artifact: surefire reports]
+    VERIFY --> ART2[Artifact: JaCoCo HTML]
+```
 
-- `UserControllerIT`
-- `ContainerControllerIT`
-- `WasteControllerIT`
+## Comandos operativos
 
-Estrategia:
-
-- `@SpringBootTest`
-- `@AutoConfigureMockMvc`
-- Perfil `test`
-- H2 en memoria
-
-Flujos reales:
-
-- `POST -> GET`
-- `PUT -> GET`
-- `DELETE -> verificacion posterior`
-
-Ejecucion sin mocks y con repositorios reales.
-
-## 9. Cobertura actual
-
-Validacion:
+Windows:
 
 ```bash
+.\mvnw.cmd test
+.\mvnw.cmd clean verify
+```
+
+Linux/macOS:
+
+```bash
+./mvnw test
 ./mvnw clean verify
 ```
 
-Resultado actual:
+Script util para validar alertas por correo:
 
-- Instrucciones: `100%`
-- Branches: `100%`
-- Metodos: `100%`
-- Clases: `100%`
-- Cobertura total: `100%`
+```bash
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-alerts.ps1
+```
 
-Esto permite detectar regresiones de comportamiento de forma inmediata.
+## Riesgos tecnicos detectados
+
+- Hay dos reglas de umbral para estado de contenedor (50/90 en entidad y 70/90 en servicio). Conviene unificar y cubrir con tests para evitar comportamiento inconsistente.
+- La capa repository no tiene pruebas activas porque `ContainerRepositoryDataJpaTest` esta comentado.
+
+## Plan de mejora propuesto (priorizado)
+
+1. Reactivar `ContainerRepositoryDataJpaTest` y añadir casos de agregacion por categoria.
+2. Subir cobertura de `ContainerController` con casos de error (`404`, `400`, estados invalidos).
+3. Añadir tests unitarios directos de `ContainerReminderScheduler` con mocks de repo/email.
+4. Añadir tests para `ContainerSummaryDTO` y ramas faltantes de `ContainerServiceImpl`.
+5. Publicar badge dinamico de CI/cobertura cuando el repo este en GitHub.
+
+## Criterio de calidad recomendado para PR
+
+- Ningun test roto (`mvnw test`).
+- `mvnw clean verify` en verde.
+- No bajar de `75%` instrucciones (gate actual).
+- Si se toca logica de negocio, incluir prueba nueva que cubra al menos una rama adicional.
